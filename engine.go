@@ -52,7 +52,12 @@ type Engine struct {
 // NewEngine new a db manager according to the parameter. Currently support four
 // drivers
 func NewEngine(driverName string, dataSourceName string) (*Engine, error) {
-	dialect, err := dialects.OpenDialect(driverName, dataSourceName)
+	actualDriverName := driverName
+	if driverName == "azuresql" {
+		actualDriverName = "mssql"
+	}
+
+	dialect, err := dialects.OpenDialect(actualDriverName, dataSourceName)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +67,7 @@ func NewEngine(driverName string, dataSourceName string) (*Engine, error) {
 		return nil, err
 	}
 
-	return newEngine(driverName, dataSourceName, dialect, db)
+	return newEngine(actualDriverName, dataSourceName, dialect, db)
 }
 
 func newEngine(driverName, dataSourceName string, dialect dialects.Dialect, db *core.DB) (*Engine, error) {
